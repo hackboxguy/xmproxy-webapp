@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMPP Proxy Configuration</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <h1>XMPP Proxy Configuration</h1>
+                <p>Configure xmproxysrv XMPP connection settings</p>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-label">Status:</span>
+                    <span id="status-led" class="status-led"></span>
+                    <span id="status-text" class="status-text">Checking...</span>
+                    <button id="btn-connection-toggle" class="btn btn-secondary btn-sm connection-btn" title="Toggle XMPP connection">
+                        Connect
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Alert messages -->
+        <div id="alert-container"></div>
+
+        <!-- Main content -->
+        <div class="grid">
+            <!-- Left column: Configuration -->
+            <div class="main-column">
+                <!-- Presets Card -->
+                <div class="card">
+                    <h2>Presets</h2>
+                    <div class="preset-controls">
+                        <select id="preset-select" class="preset-dropdown">
+                            <option value="">Select a preset...</option>
+                        </select>
+                        <div class="preset-buttons">
+                            <button id="btn-load-preset" class="btn btn-secondary btn-sm" disabled>Load</button>
+                            <button id="btn-save-preset" class="btn btn-secondary btn-sm">Save As...</button>
+                            <button id="btn-delete-preset" class="btn btn-danger btn-sm" disabled>Delete</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- XMPP Credentials Card -->
+                <div class="card">
+                    <h2>XMPP Credentials</h2>
+                    <form id="config-form">
+                        <div class="form-group">
+                            <label for="user">JID (User) <span class="required">*</span></label>
+                            <input type="text" id="user" name="user"
+                                   placeholder="bot@server.example.org"
+                                   pattern="[^@]+@[^@]+"
+                                   title="Format: user@domain"
+                                   required>
+                            <span class="form-hint">XMPP Jabber ID (user@domain)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pw">Password <span class="required">*</span></label>
+                            <div class="password-input">
+                                <input type="password" id="pw" name="pw"
+                                       placeholder="Enter password"
+                                       required>
+                                <button type="button" id="toggle-password" class="btn-icon" title="Show password">
+                                    <span class="eye-icon">&#128065;</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adminbuddy">Admin Buddy</label>
+                            <input type="text" id="adminbuddy" name="adminbuddy"
+                                   placeholder="admin@server.example.org"
+                                   pattern="[^@]+@[^@]+"
+                                   title="Format: user@domain">
+                            <span class="form-hint">Admin contact for notifications</span>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- BOSH Settings Card -->
+                <div class="card">
+                    <h2>BOSH Transport</h2>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="bosh" name="bosh">
+                            <span class="checkbox-text">Use BOSH Transport</span>
+                        </label>
+                        <span class="form-hint">Enable for HTTP-based XMPP (firewalls, web clients)</span>
+                    </div>
+
+                    <div id="bosh-settings" class="bosh-settings hidden">
+                        <div class="form-group">
+                            <label for="boshurl">BOSH URL</label>
+                            <input type="url" id="boshurl" name="boshurl"
+                                   placeholder="https://server.example.org:443/http-bind">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="boshhost">BOSH Host</label>
+                            <input type="text" id="boshhost" name="boshhost"
+                                   placeholder="server.example.org">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings Card -->
+                <div class="card">
+                    <h2>Advanced Settings</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tlsverify">TLS Verification</label>
+                            <select id="tlsverify" name="tlsverify">
+                                <option value="true">Enabled (Recommended)</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="saslmech">SASL Mechanism</label>
+                            <select id="saslmech" name="saslmech">
+                                <option value="">Auto</option>
+                                <option value="scram-sha-1">SCRAM-SHA-1</option>
+                                <option value="scram-sha-256">SCRAM-SHA-256</option>
+                                <option value="plain">PLAIN</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card action-card">
+                    <div class="action-buttons">
+                        <button id="btn-save" class="btn btn-secondary">Save</button>
+                        <button id="btn-save-restart" class="btn btn-primary">Save &amp; Restart Service</button>
+                        <button id="btn-restart" class="btn btn-secondary">Restart Only</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column: Backups -->
+            <div class="side-column">
+                <!-- Backups Card -->
+                <div class="card">
+                    <h2>Backups</h2>
+                    <div id="backups-list" class="backups-list">
+                        <p class="empty-state">No backups available</p>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div class="card">
+                    <h2>Service Info</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Service Port</span>
+                            <span class="info-value">40005</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Config File</span>
+                            <span class="info-value mono">/data/app-config/jsonrpc-tcp-srv/xmpp-login.txt</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Update</span>
+                            <span id="last-update" class="info-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Preset Modal -->
+    <div id="save-preset-modal" class="modal">
+        <div class="modal-content">
+            <h3>Save Preset</h3>
+            <p>Enter a name for this preset:</p>
+            <input type="text" id="preset-name-input" placeholder="e.g., production, staging">
+            <div class="modal-buttons">
+                <button id="btn-cancel-preset" class="btn btn-secondary">Cancel</button>
+                <button id="btn-confirm-preset" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="confirm-title">Confirm</h3>
+            <p id="confirm-message">Are you sure?</p>
+            <div class="modal-buttons">
+                <button id="btn-confirm-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="btn-confirm-ok" class="btn btn-danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

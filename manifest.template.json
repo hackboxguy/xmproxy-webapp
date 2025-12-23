@@ -1,0 +1,41 @@
+{
+  "name": "@PROJECT_NAME@",
+  "version": "@PROJECT_VERSION@",
+  "description": "XMPP Proxy Configuration",
+  "type": "webapp",
+  "port": 8006,
+  "url": "/",
+
+  "health": {
+    "type": "http",
+    "endpoint": "/health",
+    "port": 8006,
+    "interval": 10,
+    "timeout": 5
+  },
+
+  "startup": {
+    "command": "/app/@PROJECT_NAME@/bin/xmproxy-webapp-server",
+    "args": [],
+    "working_dir": "/app/@PROJECT_NAME@",
+    "priority": 75,
+    "depends_on": ["jsonrpc-tcp-srv"]
+  },
+
+  "shutdown": {
+    "timeout": 10,
+    "signal": "SIGTERM"
+  },
+
+  "data_dirs": ["backups"],
+
+  "config_files": [
+    {"source": "etc/config.json.default", "dest": "config.json"}
+  ],
+
+  "env": {
+    "APP_DATA_DIR": "/data/app-data/@PROJECT_NAME@",
+    "APP_CONFIG_DIR": "/data/app-config/@PROJECT_NAME@",
+    "APP_LOG_FILE": "/var/log/app/@PROJECT_NAME@.log"
+  }
+}
