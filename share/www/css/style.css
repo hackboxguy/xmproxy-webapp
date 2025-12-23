@@ -172,7 +172,8 @@ header p {
 
 .grid {
     display: grid;
-    grid-template-columns: 1fr 350px;
+    /* grid-template-columns: 1fr 350px; */ /* Restore when side column is enabled */
+    grid-template-columns: 1fr;
     gap: var(--spacing-lg);
 }
 

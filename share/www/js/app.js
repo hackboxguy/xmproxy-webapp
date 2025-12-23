@@ -423,7 +423,7 @@
 
     function updateLastUpdate() {
         const el = document.getElementById('last-update');
-        el.textContent = new Date().toLocaleString();
+        if (el) el.textContent = new Date().toLocaleString();
     }
 
     // ========================================================================
